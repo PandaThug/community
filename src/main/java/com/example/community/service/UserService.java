@@ -27,7 +27,7 @@ public class UserService implements CommunityConstant {
     private UserMapper userMapper;
     @Autowired
     private MailClient mailClient;
-    @Autowired
+    @Autowired(required = false)
     private TemplateEngine templateEngine;
     @Value("${community.path.domain}")
     private String domain;

@@ -18,7 +18,7 @@ public class MailTest {
 
     @Autowired
     private MailClient mailClient;
-    @Autowired
+    @Autowired(required = false)
     private TemplateEngine templateEngine;
 
     @Test
