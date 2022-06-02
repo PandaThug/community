@@ -1,8 +1,10 @@
 package com.example.community.controller.interceptor;
 
 import com.example.community.entity.LoginTicket;
+import com.example.community.entity.User;
 import com.example.community.service.UserService;
 import com.example.community.util.CookieUtil;
+import com.example.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -18,6 +20,8 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private HostHolder hostHolder;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -29,8 +33,9 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
             // 检查凭证是否有效
             if (ticket != null && loginTicket.getStatus() == 0 && loginTicket.getExpired().after(new Date())) {
                 // 根据凭证查询用户
-                userService.findUserById(loginTicket.getUserId());
+                User user = userService.findUserById(loginTicket.getUserId());
                 // 在本次请求中持有用户
+                hostHolder.setUser(user);
             }
         }
         return true;
@@ -38,11 +43,14 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+        User user = hostHolder.getUser();
+        if (user != null && modelAndView != null) {
+            modelAndView.addObject("loginUser", user);
+        }
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+        hostHolder.clear();
     }
 }
