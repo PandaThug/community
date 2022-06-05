@@ -35,4 +35,10 @@
         insert into discuss_post(user_id, title, content, type, status, create_time, comment_count, score)
         values(#{userId},#{title},#{content},#{type},#{status},#{createTime},#{commentCount},#{score})
     </insert>
+
+    <select id="selectDiscussPostById" resultType="com.example.community.entity.DiscussPost">
+        select id, user_id, title, content, type, status, create_time, comment_count, score
+        from discuss_post
+        where id = #{id}
+    </select>
 </mapper>
