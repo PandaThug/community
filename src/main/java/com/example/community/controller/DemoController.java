@@ -1,5 +1,6 @@
 package com.example.community.controller;
 
+import com.example.community.util.CommunityUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -98,6 +99,15 @@ public class DemoController {
         emp.put("salary",12000.00);
         emps.add(emp);
         return emps;
+    }
+
+    // ajax实例
+    @RequestMapping(path = "/ajax", method = RequestMethod.POST)
+    @ResponseBody
+    public String testAjax(String name, int age) {
+        System.out.println(name);
+        System.out.println(age);
+        return CommunityUtil.getJSONString(0, "操作成功!");
     }
 
 }
