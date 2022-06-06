@@ -1,8 +1,5 @@
 package com.example.community.util;
 
-import com.mysql.cj.log.Log;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,10 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * 过滤敏感词
+ * 使用前缀树(字典树/Trie)实现
  *  By:熊猫打手
  */
 @Component
