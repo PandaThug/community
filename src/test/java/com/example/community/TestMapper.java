@@ -2,9 +2,11 @@ package com.example.community;
 
 import com.example.community.dao.DiscussPostMapper;
 import com.example.community.dao.LoginTicketMapper;
+import com.example.community.dao.MessageMapper;
 import com.example.community.dao.UserMapper;
 import com.example.community.entity.DiscussPost;
 import com.example.community.entity.LoginTicket;
+import com.example.community.entity.Message;
 import com.example.community.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,8 @@ public class TestMapper {
     private DiscussPostMapper discussPostMapper;
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+    @Autowired
+    private MessageMapper messageMapper;
 
     @Test
     public void testMapper() {
@@ -51,5 +55,11 @@ public class TestMapper {
         loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
         int i = loginTicketMapper.insertLoginTicket(loginTicket);
         System.out.println(i);
+    }
+
+    @Test
+    public void testSelectMappers() {
+        List<Message> messages = messageMapper.selectConversations(1, 0, 10);
+        messages.forEach(message -> System.out.println(message));
     }
 }
