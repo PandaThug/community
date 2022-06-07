@@ -64,6 +64,7 @@ public class MessageController {
         page.setLimit(5);
         page.setPath("/letter/detail/" + conversationId);
         page.setRows(messageService.findLetterCount(conversationId));
+        // 私信列表
         List<Message> letterList = messageService.findLetters(conversationId, page.getOffset(), page.getLimit());
         List<Map<String, Object>> letters = new ArrayList<>();
         if (letterList != null) {
@@ -77,6 +78,11 @@ public class MessageController {
         model.addAttribute("letters", letters);
         // 查询私信的目标
         model.addAttribute("target", getLetterTarget(conversationId));
+        // 设置已读
+        List<Integer> ids = getLetterIds(letterList);
+        if (ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
         return "/site/letter-detail";
     }
 
@@ -89,6 +95,18 @@ public class MessageController {
         } else {
             return userService.findUserById(id0);
         }
+    }
+
+    private List<Integer> getLetterIds(List<Message> letterList) {
+        List<Integer> ids = new ArrayList<>();
+        if (letterList != null) {
+            for (Message message : letterList) {
+                if (hostHolder.getUser().getId() == message.getToId() && message.getStatus() == 0) {
+                    ids.add(message.getId());
+                }
+            }
+        }
+        return ids;
     }
 
     @RequestMapping(path = "/letter/send", method = RequestMethod.POST)

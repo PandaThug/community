@@ -16,7 +16,7 @@ public class Message {
     private Integer toId;
     private String conversationId;
     private String content;
-    private String status;
+    private Integer status;
     private Date createTime;
 
 }
