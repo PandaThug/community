@@ -32,7 +32,7 @@ public class SensitiveFilter {
     public void init() {
         try (
                 InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is))
         ) {
             String keyword;
             while ((keyword = reader.readLine()) != null) {
