@@ -34,7 +34,6 @@
         </ul>
         <a th:href="@{|/user/profile/${user.id}|}" class="text-muted position-absolute rt-0">返回个人主页&gt;</a>
       </div>
-
       <!-- 关注列表 -->
       <ul class="list-unstyled">
         <li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:each="map:${users}">
@@ -45,8 +44,8 @@
             <h6 class="mt-0 mb-3">
               <span class="text-success" th:utext="${map.user.username}">落基山脉下的闲人</span>
               <span class="float-right text-muted font-size-12">
-									关注于 <i th:text="${#dates.format(map.followTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-28 14:13:25</i>
-								</span>
+                关注于 <i th:text="${#dates.format(map.followTime,'yyyy-MM-dd HH:mm:ss')}">2022-06-08 22:53:22</i>
+              </span>
             </h6>
             <div>
               <input type="hidden" id="entityId" th:value="${map.user.id}">
@@ -58,7 +57,6 @@
       </ul>
       <!-- 分页 -->
       <nav class="mt-5" th:replace="index::pagination">
-
       </nav>
     </div>
   </div>
