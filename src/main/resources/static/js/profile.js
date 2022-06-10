@@ -3,7 +3,6 @@ $(function(){
     $(".follow-btn").click(follow);
 });
 
-
 function follow() {
     var btn = this;
     if($(btn).hasClass("btn-info")) {
