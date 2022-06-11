@@ -27,8 +27,8 @@ public class TestMapper {
     private UserMapper userMapper;
     @Autowired
     private DiscussPostMapper discussPostMapper;
-    @Autowired
-    private LoginTicketMapper loginTicketMapper;
+//    @Autowired
+//    private LoginTicketMapper loginTicketMapper;
     @Autowired
     private MessageMapper messageMapper;
 
@@ -46,16 +46,16 @@ public class TestMapper {
         System.out.println(rows);
     }
 
-    @Test
-    public void testInsertLoginTicket() {
-        LoginTicket loginTicket = new LoginTicket();
-        loginTicket.setUserId(101);
-        loginTicket.setTicket("abc");
-        loginTicket.setStatus(0);
-        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
-        int i = loginTicketMapper.insertLoginTicket(loginTicket);
-        System.out.println(i);
-    }
+//    @Test
+//    public void testInsertLoginTicket() {
+//        LoginTicket loginTicket = new LoginTicket();
+//        loginTicket.setUserId(101);
+//        loginTicket.setTicket("abc");
+//        loginTicket.setStatus(0);
+//        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
+//        int i = loginTicketMapper.insertLoginTicket(loginTicket);
+//        System.out.println(i);
+//    }
 
     @Test
     public void testSelectMappers() {
