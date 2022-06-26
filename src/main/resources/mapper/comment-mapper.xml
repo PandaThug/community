@@ -33,4 +33,10 @@
         insert into comment(user_id, entity_type, entity_id, target_id, content, status, create_time)
         values(#{userId},#{entityType},#{entityId},#{targetId},#{content},#{status},#{createTime})
     </insert>
+
+    <select id="selectCommentById" resultType="com.example.community.entity.Comment">
+        select id, user_id, entity_type, entity_id, target_id, content, status, create_time
+        from comment
+        where id = #{id}
+    </select>
 </mapper>

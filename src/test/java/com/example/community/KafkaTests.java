@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.Resource;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = CommunityApplication.class)
@@ -36,7 +34,7 @@ public class KafkaTests {
 @Component
 class KafkaProducer {
 
-    @Resource
+    @Autowired
     private KafkaTemplate kafkaTemplate;
 
     public void sendMessage(String topic, String content) {
