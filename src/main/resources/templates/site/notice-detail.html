@@ -41,24 +41,24 @@
               </button>
             </div>
             <div class="toast-body">
-								<span th:if="${topic.equals('comment')}">
-									用户
-									<i th:utext="${map.user.username}">user</i>
-									评论了你的<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
-									<a class="text-primary" th:href="@{|/discuss/detail/${map.postId}|}">点击查看</a> !
-								</span>
+              <span th:if="${topic.equals('comment')}">
+                用户
+                <i th:utext="${map.user.username}">user</i>
+                评论了你的<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
+                <a class="text-primary" th:href="@{|/discuss/detail/${map.postId}|}">点击查看</a> !
+              </span>
               <span th:if="${topic.equals('like')}">
-									用户
-									<i th:utext="${map.user.username}">user</i>
-									点赞了你的<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
-									<a class="text-primary" th:href="@{|/discuss/detail/${map.postId}|}">点击查看</a> !
-								</span>
+                用户
+                <i th:utext="${map.user.username}">user</i>
+                点赞了你的<b th:text="${map.entityType==1?'帖子':'回复'}">帖子</b>,
+                <a class="text-primary" th:href="@{|/discuss/detail/${map.postId}|}">点击查看</a> !
+              </span>
               <span th:if="${topic.equals('follow')}">
-									用户
-									<i th:utext="${map.user.username}">user</i>
-									关注了你,
-									<a class="text-primary" th:href="@{|/user/profile/${map.user.id}|}">点击查看</a> !
-								</span>
+                用户
+                <i th:utext="${map.user.username}">user</i>
+                关注了你,
+                <a class="text-primary" th:href="@{|/user/profile/${map.user.id}|}">点击查看</a> !
+              </span>
             </div>
           </div>
         </li>
@@ -82,9 +82,9 @@
 <script th:src="@{/js/global.js}"></script>
 <script th:src="@{/js/letter.js}"></script>
 <script>
-  function back() {
-    location.href = CONTEXT_PATH + "/notice/list";
-  }
+    function back() {
+        location.href = CONTEXT_PATH + "/notice/list";
+    }
 </script>
 </body>
 </html>
