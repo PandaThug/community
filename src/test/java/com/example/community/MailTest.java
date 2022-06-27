@@ -32,7 +32,7 @@ public class MailTest {
         context.setVariable("username", "Sunday");
         String content = templateEngine.process("/mail/demo", context);
         System.out.println(content);
-        mailClient.sendMail("1210242602@qq.com", "HTML", content);
+        mailClient.sendMail("1746904635@qq.com", "HTML", content);
 
     }
 }

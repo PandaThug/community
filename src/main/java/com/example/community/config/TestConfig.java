@@ -19,7 +19,7 @@ public class TestConfig {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.qq.com");
         mailSender.setUsername("1746904635@qq.com");
-        mailSender.setPassword("020711YangFCB");
+        mailSender.setPassword("jxsirsqdmluvdcfg");
         return  mailSender;
     }
 }
