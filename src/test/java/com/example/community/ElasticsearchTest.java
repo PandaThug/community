@@ -2,6 +2,7 @@ package com.example.community;
 
 import com.example.community.dao.DiscussPostMapper;
 import com.example.community.dao.elasticsearch.DiscussPostRepository;
+import com.example.community.entity.DiscussPost;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,4 +27,12 @@ public class ElasticsearchTest {
     public void testInsert() {
         discussPostRepository.save(discussPostMapper.selectDiscussPostById(271));
     }
+
+    @Test
+    public void testUpdate() {
+        DiscussPost post = discussPostMapper.selectDiscussPostById(271);
+        post.setContent("熊猫打手");
+        discussPostRepository.save(post);
+    }
+
 }
