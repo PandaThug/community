@@ -8,7 +8,6 @@ import com.example.community.service.CommentService;
 import com.example.community.service.DiscussPostService;
 import com.example.community.util.CommunityConstant;
 import com.example.community.util.HostHolder;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
