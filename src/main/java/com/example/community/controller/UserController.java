@@ -25,12 +25,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/user")
 public class UserController implements CommunityConstant {
 
-    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Value("${community.path.upload}")
     private String uploadPath;
@@ -61,7 +62,7 @@ public class UserController implements CommunityConstant {
             return "/site/setting";
         }
         String fileName = headerImage.getOriginalFilename();
-        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        String suffix = Objects.requireNonNull(fileName).substring(fileName.lastIndexOf("."));
         if (StringUtils.isBlank(suffix)) {
             model.addAttribute("error", "文件的格式不正确！");
             return "/site/setting";

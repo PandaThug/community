@@ -13,7 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -44,7 +45,7 @@ public class ElasticsearchTest {
 
     @Test
     public void testSearchRepository() {
-        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.multiMatchQuery("关键字", "title", "content"))
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
@@ -55,12 +56,12 @@ public class ElasticsearchTest {
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
                 )
                 .build();
-        Page<DiscussPost> page = discussPostRepository.search(searchQuery);
-        System.out.println(page.getTotalElements());
-        System.out.println(page.getTotalPages());
-        System.out.println(page.getNumber());
-        System.out.println(page.getSize());
-        page.forEach(System.out::println);
+//        Page<DiscussPost> page = discussPostRepository.searchSimilar(searchQuery);
+//        System.out.println(page.getTotalElements());
+//        System.out.println(page.getTotalPages());
+//        System.out.println(page.getNumber());
+//        System.out.println(page.getSize());
+//        page.forEach(System.out::println);
     }
 
 

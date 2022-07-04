@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/comment")
@@ -43,10 +44,10 @@ public class CommentController implements CommunityConstant {
                 .setEntityType(comment.getEntityType())
                 .setEntityId(comment.getEntityId())
                 .setData("postId", discussPostId);
-        if (comment.getEntityType() == ENTITY_TYPE_POST) {
+        if (Objects.equals(comment.getEntityType(), ENTITY_TYPE_POST)) {
             DiscussPost target = discussPostService.findDiscussPost(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
-        } else if (comment.getEntityType() == ENTITY_TYPE_COMMENT) {
+        } else if (Objects.equals(comment.getEntityType(), ENTITY_TYPE_COMMENT)) {
             Comment target = commentService.findCommentById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
         }

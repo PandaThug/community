@@ -1,6 +1,5 @@
 package com.example.community.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.community.entity.Message;
 import com.example.community.entity.Page;
@@ -19,10 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
-import javax.swing.*;
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
-import java.sql.PreparedStatement;
 import java.util.*;
 
 @Controller
@@ -52,7 +47,7 @@ public class MessageController implements CommunityConstant {
                 map.put("conversation", message);
                 map.put("letterCount", messageService.findLetterCount(message.getConversationId()));
                 map.put("unreadCount", messageService.findLetterUnreadCount(user.getId(), message.getConversationId()));
-                int targetId = user.getId() == message.getFromId() ? message.getToId() : message.getFromId();
+                int targetId = Objects.equals(user.getId(), message.getFromId()) ? message.getToId() : message.getFromId();
                 map.put("target", userService.findUserById(targetId));
                 conversations.add(map);
             }
@@ -108,7 +103,7 @@ public class MessageController implements CommunityConstant {
         List<Integer> ids = new ArrayList<>();
         if (letterList != null) {
             for (Message message : letterList) {
-                if (hostHolder.getUser().getId() == message.getToId() && message.getStatus() == 0) {
+                if (Objects.equals(hostHolder.getUser().getId(), message.getToId()) && message.getStatus() == 0) {
                     ids.add(message.getId());
                 }
             }
