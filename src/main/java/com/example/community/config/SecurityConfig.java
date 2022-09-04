@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements CommunityConstant {
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/resource/**");
@@ -42,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                 AUTHORITY_USER,
                 AUTHORITY_ADMIN,
                 AUTHORITY_MODERATOR
-        ).anyRequest().permitAll();
+        ).anyRequest().permitAll().and().csrf().disable();
 
         // 权限不够时的处理
         http.exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPoint() {
@@ -72,8 +73,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                 }
             }
         });
-
-
+        // Security的底层会默认拦截/logout请求，进行退出处理
+        // 覆盖它默认的逻辑才能执行我们自己的退出代码
+        http.logout().logoutUrl("/securitylogout");
     }
 
 }
