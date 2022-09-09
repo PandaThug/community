@@ -63,9 +63,11 @@ public class FollowController implements CommunityConstant {
             throw new RuntimeException("该用户不存在!");
         }
         model.addAttribute("user", user);
+
         page.setLimit(5);
         page.setPath("/followees/" + userId);
         page.setRows((int) followService.findFolloweeCount(userId, ENTITY_TYPE_USER));
+
         List<Map<String, Object>> userList = followService.findFollowees(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {
@@ -74,6 +76,7 @@ public class FollowController implements CommunityConstant {
             }
         }
         model.addAttribute("users", userList);
+
         return "/site/followee";
     }
 
@@ -84,9 +87,11 @@ public class FollowController implements CommunityConstant {
             throw new RuntimeException("该用户不存在!");
         }
         model.addAttribute("user", user);
+
         page.setLimit(5);
         page.setPath("/followers/" + userId);
         page.setRows((int) followService.findFollowerCount(ENTITY_TYPE_USER, userId));
+
         List<Map<String, Object>> userList = followService.findFollowers(userId, page.getOffset(), page.getLimit());
         if (userList != null) {
             for (Map<String, Object> map : userList) {
@@ -95,6 +100,7 @@ public class FollowController implements CommunityConstant {
             }
         }
         model.addAttribute("users", userList);
+
         return "/site/follower";
     }
 

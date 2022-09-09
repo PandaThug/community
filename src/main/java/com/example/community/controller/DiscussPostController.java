@@ -10,6 +10,7 @@ import com.example.community.util.CommunityConstant;
 import com.example.community.util.CommunityUtil;
 import com.example.community.util.HostHolder;
 import com.example.community.util.RedisKeyUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -47,7 +48,11 @@ public class DiscussPostController implements CommunityConstant {
         if (user == null) {
             return CommunityUtil.getJSONString(403, "你还没有登录！");
         }
+        if (StringUtils.isBlank(title) || StringUtils.isBlank(content)) {
+            return CommunityUtil.getJSONString(1, "标题或内容不能为空！");
+        }
         DiscussPost post = new DiscussPost();
+        post.setUserId(user.getId());
         post.setTitle(title);
         post.setContent(content);
         post.setCreateTime(new Date());
@@ -156,6 +161,21 @@ public class DiscussPostController implements CommunityConstant {
         return CommunityUtil.getJSONString(0);
     }
 
+    // 取消置顶
+    @RequestMapping(path = "/untop", method = RequestMethod.POST)
+    @ResponseBody
+    public String setUnTop(int id) {
+        discussPostService.updateType(id, 0);
+        // 触发发帖事件。因为要将数据存到ES中，这样用ES就可以进行搜索
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
+    }
+
     // 加精
     @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
     @ResponseBody
@@ -171,6 +191,22 @@ public class DiscussPostController implements CommunityConstant {
         // 计算帖子分数
         String redisKey = RedisKeyUtil.getPostScoreKey();
         redisTemplate.opsForSet().add(redisKey, id);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+    // 取消加精
+    @RequestMapping(path = "/unwonderful", method = RequestMethod.POST)
+    @ResponseBody
+    public String setUnWonderful(int id) {
+        discussPostService.updateStatus(id, 0);
+        // 触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
 
         return CommunityUtil.getJSONString(0);
     }

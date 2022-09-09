@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -45,12 +44,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                 AUTHORITY_MODERATOR
         ).antMatchers(
                 "/discuss/top",
-                "/discuss/wonderful"
+                "/discuss/untop",
+                "discuss/wonderful",
+                "/discuss/unwonderful"
         ).hasAnyAuthority(
                 AUTHORITY_MODERATOR
         ).antMatchers(
                 "/discuss/delete",
-                "/data/**"
+                "/data/**",
+                "/actuator/**"
         ).hasAnyAuthority(
                 AUTHORITY_ADMIN
         ).anyRequest().permitAll().and().csrf().disable();

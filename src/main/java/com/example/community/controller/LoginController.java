@@ -58,11 +58,11 @@ public class LoginController implements CommunityConstant {
         Map<String, Object> map = userService.register(user);
         if (map == null || map.isEmpty()) {
             model.addAttribute("msg", "注册成功，我们已经向您的邮箱发送了一封激活邮件，请尽快激活吧！");
-            model.addAttribute("target", "/index");
-            return "/site/operate-result";
+            return "/site/operate";
         } else {
             model.addAttribute("usernameMsg", map.get("usernameMsg"));
             model.addAttribute("passwordMsg", map.get("passwordMsg"));
+            model.addAttribute("confirmPasswordMsg", map.get("confirmPasswordMsg"));
             model.addAttribute("emailMsg", map.get("emailMsg"));
             return "/site/register";
         }
@@ -75,12 +75,15 @@ public class LoginController implements CommunityConstant {
         if (activation == ACTIVATION_SUCCESS) {
             model.addAttribute("msg", "激活成功，您的账号已经可以正常使用了！");
             model.addAttribute("target", "/login");
+            model.addAttribute("destination", "登录页");
         } else if (activation == ACTIVATION_REPEAT) {
             model.addAttribute("msg", "无效操作，该账号已经激活过了！");
-            model.addAttribute("target", "/index");
+            model.addAttribute("target", "/login");
+            model.addAttribute("destination", "登录页");
         } else {
             model.addAttribute("msg", "激活失败，您提供的激活码不正确！");
             model.addAttribute("target", "/index");
+            model.addAttribute("destination", "首页");
         }
         return "/site/operate-result";
     }
@@ -95,12 +98,13 @@ public class LoginController implements CommunityConstant {
         // 验证码的归属
         String kaptchaOwner = CommunityUtil.generateUUID();
         Cookie cookie = new Cookie("kaptchaOwner", kaptchaOwner);
-        cookie.setMaxAge(60);
+        // 失效时间10min
+        cookie.setMaxAge(60 * 10);
         cookie.setPath(contextPath);
         response.addCookie(cookie);
         // 将验证码存入Redis
         String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
-        redisTemplate.opsForValue().set(redisKey, text, 60, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, text, 60 * 10, TimeUnit.SECONDS);
         // 将图片输出给浏览器
         response.setContentType("image/png");
         try {
@@ -118,14 +122,21 @@ public class LoginController implements CommunityConstant {
         // 检查验证码
 //        String kaptcha = (String) session.getAttribute("kaptcha");
         String kaptcha = null;
-        if (StringUtils.isNotBlank(kaptchaOwner)) {
-            String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
-            kaptcha = (String) redisTemplate.opsForValue().get(redisKey);
+        try {
+            if (StringUtils.isNotBlank(kaptchaOwner)) {
+                String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+                kaptcha = (String) redisTemplate.opsForValue().get(redisKey);
+            }
+        } catch (Exception e) {
+            model.addAttribute("codeMsg", "验证码失效！");
+            return "/site/login";
         }
+
         if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
             model.addAttribute("codeMsg", "验证码不正确！");
             return "/site/login";
         }
+
         // 检查账号、密码
         int expiredSeconds = rememberMe ? REMEMBER_EXPIRED_SECONDS : DEFAULT_EXPIRED_SECONDS;
         Map<String, Object> map = userService.login(username, password, expiredSeconds);

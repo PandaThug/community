@@ -49,6 +49,7 @@ public class MessageController implements CommunityConstant {
                 map.put("unreadCount", messageService.findLetterUnreadCount(user.getId(), message.getConversationId()));
                 int targetId = Objects.equals(user.getId(), message.getFromId()) ? message.getToId() : message.getFromId();
                 map.put("target", userService.findUserById(targetId));
+
                 conversations.add(map);
             }
         }
@@ -58,6 +59,7 @@ public class MessageController implements CommunityConstant {
         model.addAttribute("letterUnreadCount", letterUnreadCount);
         int noticeUnreadCount = messageService.findNoticeUnreadCount(user.getId(), null);
         model.addAttribute("noticeUnreadCount", noticeUnreadCount);
+
         return "/site/letter";
     }
 
@@ -66,6 +68,7 @@ public class MessageController implements CommunityConstant {
         page.setLimit(5);
         page.setPath("/letter/detail/" + conversationId);
         page.setRows(messageService.findLetterCount(conversationId));
+
         // 私信列表
         List<Message> letterList = messageService.findLetters(conversationId, page.getOffset(), page.getLimit());
         List<Map<String, Object>> letters = new ArrayList<>();
@@ -78,6 +81,7 @@ public class MessageController implements CommunityConstant {
             }
         }
         model.addAttribute("letters", letters);
+
         // 查询私信的目标
         model.addAttribute("target", getLetterTarget(conversationId));
         // 设置已读
@@ -118,6 +122,7 @@ public class MessageController implements CommunityConstant {
         if (target == null) {
             return CommunityUtil.getJSONString(1, "目标用户不存在!");
         }
+
         Message message = new Message();
         message.setFromId(hostHolder.getUser().getId());
         message.setToId(target.getId());
@@ -129,12 +134,14 @@ public class MessageController implements CommunityConstant {
         message.setContent(content);
         message.setCreateTime(new Date());
         messageService.addMessage(message);
+
         return CommunityUtil.getJSONString(0);
     }
 
     @RequestMapping(path = "/notice/list", method = RequestMethod.GET)
     public String getNoticeList(Model model) {
         User user = hostHolder.getUser();
+
         // 查询评论类通知
         Message message = messageService.findLatestNotice(user.getId(), TOPIC_COMMENT);
         if (message != null) {

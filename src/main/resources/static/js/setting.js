@@ -5,7 +5,7 @@ $(function(){
 //$.ajax是一种比$.post更为强大的异步请求方法，因为文件所需的参数更多了
 function upload() {
     $.ajax({
-        url: "http://upload-z1.qiniup.com",
+        url: "http://upload-z2.qiniup.com",
         method: "post",
         processData: false,
         contentType: false,

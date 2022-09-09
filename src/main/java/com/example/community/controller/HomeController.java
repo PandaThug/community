@@ -35,6 +35,7 @@ public class HomeController implements CommunityConstant {
         // 所以，在Thymeleaf中可以直接访问Page对象中的数据。
         page.setRows(discussPostService.findDiscussPostRows(0));
         page.setPath("/index?orderMode=" + orderMode);
+
         List<DiscussPost> list = discussPostService.findDiscussionPosts(0, page.getOffset(), page.getLimit(), orderMode);
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (list != null) {
@@ -43,8 +44,10 @@ public class HomeController implements CommunityConstant {
                 map.put("post", post);
                 User user = userService.findUserById(post.getUserId());
                 map.put("user", user);
+
                 long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
                 map.put("likeCount", likeCount);
+
                 discussPosts.add(map);
             }
         }

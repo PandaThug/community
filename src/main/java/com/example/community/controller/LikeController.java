@@ -44,6 +44,7 @@ public class LikeController implements CommunityConstant {
         Map<String, Object> map = new HashMap<>();
         map.put("likeCount", likeCount);
         map.put("likeStatus", likeStatus);
+
         // 触发点赞事件
         if (likeStatus == 1) {
             Event event = new Event()
