@@ -8,6 +8,7 @@ public class RedisKeyUtil {
     private static final String PREFIX_FOLLOWEE = "followee";
     private static final String PREFIX_FOLLOWER = "follower";
     private static final String PREFIX_KAPTCHA = "kaptcha";
+    private static final String PREFIX_CODE = "code";
     private static final String PREFIX_TICKET = "ticket";
     private static final String PREFIX_USER = "user";
     private static final String PREFIX_UV = "uv";
@@ -76,6 +77,10 @@ public class RedisKeyUtil {
     // 帖子分数
     public static String getPostScoreKey() {
         return PREFIX_POST + SPLIT + "score";
+    }
+
+    public static String getCodeKey(String owner) {
+        return PREFIX_CODE + SPLIT + owner;
     }
 
 }

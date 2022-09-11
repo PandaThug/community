@@ -1,13 +1,16 @@
 package com.example.community.controller;
 
 import com.example.community.annotation.LoginRequired;
+import com.example.community.entity.Comment;
+import com.example.community.entity.DiscussPost;
+import com.example.community.entity.Page;
 import com.example.community.entity.User;
-import com.example.community.service.FollowService;
-import com.example.community.service.LikeService;
-import com.example.community.service.UserService;
+//import com.community.service.*;
+import com.example.community.service.*;
 import com.example.community.util.CommunityConstant;
 import com.example.community.util.CommunityUtil;
 import com.example.community.util.HostHolder;
+import com.example.community.util.RedisKeyUtil;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import org.apache.commons.lang3.StringUtils;
@@ -15,12 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -28,8 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 @Controller
 @RequestMapping("/user")
@@ -51,6 +51,12 @@ public class UserController implements CommunityConstant {
     private LikeService likeService;
     @Autowired
     private FollowService followService;
+    @Autowired
+    private DiscussPostService discussPostService;
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Value("${qiniu.key.access}")
     private String accessKey;
     @Value("${qiniu.key.secret}")
@@ -150,9 +156,73 @@ public class UserController implements CommunityConstant {
         }
     }
 
+    //    @LoginRequired
+    @RequestMapping(path = "/changePassword", method = {RequestMethod.GET,RequestMethod.POST})
+    //修改密码，model变量用来向页面返回数据
+    public String changePassword(String oldPassword,String newPassword,String confirmPassword, Model model) {
+        User user = hostHolder.getUser();
+        Map<String, Object> map = userService.changePassword(user,oldPassword, newPassword, confirmPassword);
+        if(map == null || map.isEmpty()){
+            return "redirect:/index";
+        }else {
+            model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
+            model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
+            model.addAttribute("confirmPasswordMsg", map.get("confirmPasswordMsg"));
+            return "/site/setting";
+        }
+    }
+
+    @RequestMapping(path = "/changePasswordByCode", method = {RequestMethod.GET,RequestMethod.POST})
+    //修改密码，model变量用来向页面返回数据
+    public String changePasswordByCode(String email,String code,String password, Model model,
+                                       @CookieValue("codeOwner") String codeOwner) {
+        String kaptcha = null;
+        try {
+            if (StringUtils.isNotBlank(codeOwner)) {
+                String redisKey = RedisKeyUtil.getCodeKey(codeOwner);
+                kaptcha = (String) redisTemplate.opsForValue().get(redisKey);
+            }
+        }catch (Exception e) {
+            model.addAttribute("codeMsg", "验证码失效!");
+            return "/site/forget";
+        }
+
+
+        if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equals(code)) {
+            model.addAttribute("codeMsg", "验证码不正确!");
+            return "/site/forget";
+        }
+        Map<String, Object> map = userService.changePasswordByCode(email, password);
+        if (map.containsKey("success")) {
+            return "redirect:/login";
+        } else {
+            model.addAttribute("passwordMsg", map.get("passwordMsg"));
+            return "/site/forget";
+        }
+    }
+
+    @RequestMapping(path = "/forgetPassword", method = RequestMethod.GET)
+    //忘记密码
+    public String forgetPassword() {
+        return "/site/forget";
+    }
+
+    @RequestMapping(path = "/sendCode", method = RequestMethod.POST)
+    //向邮箱发送验证码
+    @ResponseBody
+    public String sendCode(String email,HttpServletResponse response){
+        User user=userService.findUserByEmail(email);
+        if(user==null){
+            return CommunityUtil.getJSONString(1,"您输入的邮箱格式有误或未注册");
+        }
+        userService.sendCode(email,response);
+        return CommunityUtil.getJSONString(0);
+    }
+
     // 个人主页
     @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
-    public String getProfilePage(@PathVariable("userId")int userId, Model model) {
+    public String getProfilePage(@PathVariable("userId") int userId, Model model,
+                                 @RequestParam(name = "infoMode", defaultValue = "0") int infoMode) {
         User user = userService.findUserById(userId);
         if (user == null) {
             throw new RuntimeException("该用户不存在!");
@@ -174,7 +244,88 @@ public class UserController implements CommunityConstant {
             hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
         }
         model.addAttribute("hasFollowed", hasFollowed);
+        model.addAttribute("infoMode", infoMode);
+
         return "/site/profile";
+    }
+
+    //跳转到我的帖子页面
+    @RequestMapping(path = "/mypost/{userId}", method = RequestMethod.GET)
+    public String toMyPost(@PathVariable("userId") int userId,Model model, Page page,
+                           @RequestParam(name = "infoMode", defaultValue = "1") int infoMode) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在!");
+        }
+        model.addAttribute("user", user);
+
+        // 设置分页信息
+        page.setLimit(5);
+        page.setRows(discussPostService.findDiscussPostRows(user.getId()));
+        page.setPath("/user/mypost/"+userId);
+
+
+        // 查询某用户发布的帖子
+        List<DiscussPost> discussPosts = discussPostService.findDiscussPosts(user.getId(), page.getOffset(), page.getLimit(),0);
+        List<Map<String, Object>> list = new ArrayList<>();
+        if (discussPosts != null) {
+            for (DiscussPost post : discussPosts) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("post", post);
+                // 点赞数量
+                long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId());
+                map.put("likeCount", likeCount);
+
+                list.add(map);
+            }
+            model.addAttribute("discussPosts", list);
+        }
+        // 帖子数量
+        int postCount = discussPostService.findDiscussPostRows(user.getId());
+        model.addAttribute("postCount", postCount);
+        model.addAttribute("infoMode", infoMode);
+
+        return "site/my-post";
+    }
+
+    //跳转到我的评论页面
+    @RequestMapping(path = "/mycomment/{userId}", method = RequestMethod.GET)
+    public String toMyReply(@PathVariable("userId") int userId,Model model, Page page,
+                            @RequestParam(name = "infoMode", defaultValue = "2") int infoMode) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在!");
+        }
+        model.addAttribute("user", user);
+
+        // 设置分页信息
+        page.setLimit(5);
+        page.setRows(commentService.findCommentCountById(user.getId()));
+        page.setPath("/user/mycomment/"+userId);
+
+        // 获取用户所有评论 (而不是回复,所以在 sql 里加一个条件 entity_type = 1)
+        List<Comment> comments = commentService.findCommentsByUserId(user.getId(),page.getOffset(), page.getLimit());
+        List<Map<String, Object>> list = new ArrayList<>();
+        if (comments != null) {
+            for (Comment comment : comments) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("comment", comment);
+
+                // 根据实体 id 查询对应的帖子标题
+                String discussPostTitle = discussPostService.findDiscussPostById(comment.getEntityId()).getTitle();
+                map.put("discussPostTitle", discussPostTitle);
+
+                list.add(map);
+            }
+            model.addAttribute("comments", list);
+        }
+
+        // 回复的数量
+        int commentCount = commentService.findCommentCountById(user.getId());
+        model.addAttribute("commentCount", commentCount);
+        model.addAttribute("infoMode", infoMode);
+
+        return "site/my-comment";
     }
 
 }

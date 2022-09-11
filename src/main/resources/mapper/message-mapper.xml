@@ -15,11 +15,11 @@
         select id, from_id, to_id, conversation_id, content, status, create_time
         from message
         where id in (
-        select max(id) from message
-        where status != 2
-        and from_id != 1
-        and (from_id = #{userId} or to_id = #{userId})
-        group by conversation_id
+            select max(id) from message
+            where status != 2
+            and from_id != 1
+            and (from_id = #{userId} or to_id = #{userId})
+            group by conversation_id
         )
         order by id desc
         limit #{offset}, #{limit}
@@ -27,11 +27,11 @@
 
     <select id="selectConversationCount" resultType="int">
         select count(m.maxid) from (
-            select max(id) from message
-            where status != 2
-            and from_id != 1
-            and (from_id = #{userId} or to_id = #{userId})
-            group by conversation_id
+                select max(id) from message
+                where status != 2
+                and from_id != 1
+                and (from_id = #{userId} or to_id = #{userId})
+                group by conversation_id
         ) as m
     </select>
 

@@ -48,7 +48,7 @@ public class CommentController implements CommunityConstant {
                 .setEntityId(comment.getEntityId())
                 .setData("postId", discussPostId);
         if (Objects.equals(comment.getEntityType(), ENTITY_TYPE_POST)) {
-            DiscussPost target = discussPostService.findDiscussPost(comment.getEntityId());
+            DiscussPost target = discussPostService.findDiscussPostById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
         } else if (Objects.equals(comment.getEntityType(), ENTITY_TYPE_COMMENT)) {
             Comment target = commentService.findCommentById(comment.getEntityId());

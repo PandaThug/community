@@ -26,9 +26,12 @@ public class FollowService implements CommunityConstant {
             public Object execute(RedisOperations operations) throws DataAccessException {
                 String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
                 String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
+
                 operations.multi();
+
                 operations.opsForZSet().add(followeeKey, entityId, System.currentTimeMillis());
                 operations.opsForZSet().add(followerKey, userId, System.currentTimeMillis());
+
                 return operations.exec();
             }
         });
@@ -40,9 +43,12 @@ public class FollowService implements CommunityConstant {
             public Object execute(RedisOperations operations) throws DataAccessException {
                 String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
                 String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
+
                 operations.multi();
+
                 operations.opsForZSet().remove(followeeKey, entityId);
                 operations.opsForZSet().remove(followerKey, userId);
+
                 return operations.exec();
             }
         });
@@ -70,9 +76,11 @@ public class FollowService implements CommunityConstant {
     public List<Map<String, Object>> findFollowees(int userId, int offset, int limit) {
         String followeeKey = RedisKeyUtil.getFolloweeKey(userId, ENTITY_TYPE_USER);
         Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(followeeKey, offset, offset + limit - 1);
+
         if (targetIds == null) {
             return null;
         }
+
         List<Map<String, Object>> list = new ArrayList<>();
         for (Integer targetId : targetIds) {
             Map<String, Object> map = new HashMap<>();
@@ -82,16 +90,20 @@ public class FollowService implements CommunityConstant {
             map.put("followTime", new Date(score.longValue()));
             list.add(map);
         }
+
         return list;
     }
 
     // 查询某个用户的粉丝
     public List<Map<String, Object>> findFollowers(int userId, int offset, int limit) {
         String followerKey = RedisKeyUtil.getFollowerKey(ENTITY_TYPE_USER, userId);
+        // redisTemplate返回的set集合是有序的，JDK内置的set集合是无序的
         Set<Integer> targetIds = redisTemplate.opsForZSet().reverseRange(followerKey, offset, offset + limit -1);
+
         if (targetIds == null) {
             return null;
         }
+
         List<Map<String, Object>> list = new ArrayList<>();
         for (Integer targetId : targetIds) {
             Map<String, Object> map = new HashMap<>();

@@ -85,7 +85,7 @@ public class DiscussPostService {
 
     }
 
-    public List<DiscussPost> findDiscussionPosts(int userId, int offset, int limit, int orderMode) {
+    public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode) {
         if (userId == 0 && orderMode == 1) {
             return postListCache.get(offset + ":" + limit);
         }
@@ -106,15 +106,15 @@ public class DiscussPostService {
             throw new IllegalArgumentException("参数不能为空!");
         }
         // 转义HTML标记
-        discussPost.setTitle(HtmlUtils.htmlEscape(discussPost.getTitle()));
-        discussPost.setContent(HtmlUtils.htmlEscape(discussPost.getContent()));
+//        discussPost.setTitle(HtmlUtils.htmlEscape(discussPost.getTitle()));
+//        discussPost.setContent(HtmlUtils.htmlEscape(discussPost.getContent()));
         // 过滤敏感词
         discussPost.setTitle(sensitiveFilter.filter(discussPost.getTitle()));
         discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
         return discussPostMapper.insertDiscussPost(discussPost);
     }
 
-    public DiscussPost findDiscussPost(int id) {
+    public DiscussPost findDiscussPostById(int id) {
         return discussPostMapper.selectDiscussPostById(id);
     }
 

@@ -53,6 +53,7 @@ public class ElasticsearchService {
                         new HighlightBuilder.Field("title").preTags("<em>").postTags("</em>"),
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
                 ).build();
+
         return elasticsearchTemplate.queryForPage(searchQuery, DiscussPost.class, new SearchResultMapper() {
             @Override
             public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass, Pageable pageable) {
@@ -60,32 +61,43 @@ public class ElasticsearchService {
                 if (hits.getTotalHits() <= 0) {
                     return null;
                 }
+
                 List<DiscussPost> list = new ArrayList<>();
                 for (SearchHit hit : hits) {
                     DiscussPost post = new DiscussPost();
+
                     String id = hit.getSourceAsMap().get("id").toString();
                     post.setId(Integer.valueOf(id));
+
                     String userId = hit.getSourceAsMap().get("userId").toString();
                     post.setUserId(Integer.valueOf(userId));
+
                     String title = hit.getSourceAsMap().get("title").toString();
                     post.setTitle(title);
+
                     String content = hit.getSourceAsMap().get("content").toString();
                     post.setContent(content);
+
                     String status = hit.getSourceAsMap().get("status").toString();
                     post.setStatus(Integer.valueOf(status));
+
                     String createTime = hit.getSourceAsMap().get("createTime").toString();
                     post.setCreateTime(new Date(Long.valueOf(createTime)));
+
                     String commentCount = hit.getSourceAsMap().get("commentCount").toString();
                     post.setCommentCount(Integer.valueOf(commentCount));
+
                     // 处理高亮显示的结果
                     HighlightField titleField = hit.getHighlightFields().get("title");
                     if (titleField != null) {
                         post.setTitle(titleField.getFragments()[0].toString());
                     }
+
                     HighlightField contentField = hit.getHighlightFields().get("content");
                     if (contentField != null) {
                         post.setContent(contentField.getFragments()[0].toString());
                     }
+
                     list.add(post);
                 }
                 return new AggregatedPageImpl(list, pageable,

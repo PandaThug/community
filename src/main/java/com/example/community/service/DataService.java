@@ -36,6 +36,7 @@ public class DataService {
         if (start == null || end == null) {
             throw new IllegalArgumentException("参数不能为空！");
         }
+
         // 整理该日期范围内的key
         List<String> keyList = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
@@ -45,9 +46,11 @@ public class DataService {
             keyList.add(key);
             calendar.add(Calendar.DATE, 1);
         }
+
         // 合并这些数据
         String redisKey = RedisKeyUtil.getUVKey(df.format(start), df.format(end));
         redisTemplate.opsForHyperLogLog().union(redisKey, keyList.toArray());
+
         // 返回统计的结果
         return redisTemplate.opsForHyperLogLog().size(redisKey);
     }
@@ -63,6 +66,7 @@ public class DataService {
         if (start == null || end == null) {
             throw new IllegalArgumentException("参数不能为空！");
         }
+
         // 整理该日期范围内的key
         List<byte[]> keyList = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
@@ -72,6 +76,7 @@ public class DataService {
             keyList.add(key.getBytes());
             calendar.add(Calendar.DATE, 1);
         }
+        
         // 进行OR运算
         return (long) redisTemplate.execute(new RedisCallback() {
             @Override

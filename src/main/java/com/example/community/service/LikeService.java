@@ -21,8 +21,11 @@ public class LikeService {
             public Object execute(RedisOperations operations) throws DataAccessException {
                 String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType, entityId);
                 String userLikeKey = RedisKeyUtil.getUserLikeKey(entityUserId);
+
                 boolean isMember = operations.opsForSet().isMember(entityLikeKey, userId);
+
                 operations.multi();
+
                 if (isMember) {
                     operations.opsForSet().remove(entityLikeKey, userId);
                     operations.opsForValue().decrement(userLikeKey);
@@ -30,6 +33,7 @@ public class LikeService {
                     operations.opsForSet().add(entityLikeKey, userId);
                     operations.opsForValue().increment(userLikeKey);
                 }
+
                 return operations.exec();
             }
         });

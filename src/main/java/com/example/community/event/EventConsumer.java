@@ -17,7 +17,6 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledFuture;
 
 @Component
 public class EventConsumer implements CommunityConstant {
@@ -74,15 +72,18 @@ public class EventConsumer implements CommunityConstant {
         message.setToId(event.getEntityId());
         message.setConversationId(event.getTopic());
         message.setCreateTime(new Date());
+
         Map<String, Object> content = new HashMap<>();
         content.put("userId", event.getUserId());
         content.put("entityType", event.getEntityType());
         content.put("entityId", event.getEntityId());
+
         if (!event.getData().isEmpty()) {
             for (Map.Entry<String, Object> entry : event.getData().entrySet()) {
                 content.put(entry.getKey(), entry.getValue());
             }
         }
+        // 把content转为JSON字符串
         message.setContent(JSONObject.toJSONString(content));
         messageService.addMessage(message);
     }
@@ -99,7 +100,7 @@ public class EventConsumer implements CommunityConstant {
             logger.error("消息格式错误!");
             return;
         }
-        DiscussPost post = discussPostService.findDiscussPost(event.getEntityId());
+        DiscussPost post = discussPostService.findDiscussPostById(event.getEntityId());
         elasticsearchService.saveDiscussPost(post);
     }
 

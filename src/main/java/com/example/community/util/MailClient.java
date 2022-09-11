@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 @Component
@@ -25,6 +26,7 @@ public class MailClient {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message);
             helper.setFrom(from);
+//            helper.setFrom(new InternetAddress(from,"community","UTF-8"));
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(content, true);

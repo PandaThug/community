@@ -16,6 +16,7 @@ public class CommunityUtil {
 
     // MD5加密
     public static String md5(String key) {
+        //如果密码为null或空格，返回null
         if (StringUtils.isBlank(key)) {
             return null;
         }
